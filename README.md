@@ -1,1 +1,1 @@
-The file contains a guideline for the perfection automation workflow for agencies
+The file contains a guideline for the perfect automation workflow for agencies
