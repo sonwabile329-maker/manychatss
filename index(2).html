@@ -1,0 +1,763 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --c-bg: var(--color-background-primary);
+    --c-surface: var(--color-background-secondary);
+    --c-border: var(--color-border-tertiary);
+    --c-text: var(--color-text-primary);
+    --c-muted: var(--color-text-secondary);
+    --c-hint: var(--color-text-tertiary);
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --purple-dark: #3C3489;
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --teal-dark: #085041;
+    --coral: #D85A30;
+    --coral-light: #FAECE7;
+    --coral-dark: #712B13;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --amber-dark: #633806;
+    --blue: #378ADD;
+    --blue-light: #E6F1FB;
+    --blue-dark: #0C447C;
+    --gray: #888780;
+    --gray-light: #F1EFE8;
+    --gray-dark: #444441;
+  }
+
+  body { font-family: 'Syne', sans-serif; }
+
+  .wrapper {
+    padding: 2rem 1.5rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--c-text);
+    letter-spacing: -0.3px;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--c-muted);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 400;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--c-muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── PHASE LABELS ─────────────── */
+  .phase-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .phase-label {
+    text-align: center;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--c-hint);
+    padding: 4px 0;
+    border-top: 1.5px solid var(--c-border);
+  }
+
+  /* ─── SECTION HEADING ──────────── */
+  .section-title {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--c-hint);
+    margin: 1.5rem 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before, .section-title::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: var(--c-border);
+  }
+
+  /* ─── NODES ─────────────────────── */
+  .flow-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    position: relative;
+  }
+
+  .flow-row + .flow-row {
+    margin-top: 8px;
+  }
+
+  .node {
+    border-radius: 10px;
+    padding: 12px 14px;
+    flex: 1;
+    position: relative;
+    border: 0.5px solid transparent;
+    cursor: default;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .node:hover {
+    transform: translateY(-1px);
+  }
+
+  .node-label {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .node-sub {
+    font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.5;
+    font-family: 'DM Mono', monospace;
+    font-weight: 400;
+    opacity: 0.82;
+  }
+
+  .node-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  /* ─── COLOR VARIANTS ─────────────── */
+  .n-purple { background: var(--purple-light); border-color: #AFA9EC; color: var(--purple-dark); }
+  .n-teal   { background: var(--teal-light);   border-color: #5DCAA5; color: var(--teal-dark); }
+  .n-coral  { background: var(--coral-light);  border-color: #F0997B; color: var(--coral-dark); }
+  .n-amber  { background: var(--amber-light);  border-color: #EF9F27; color: var(--amber-dark); }
+  .n-blue   { background: var(--blue-light);   border-color: #85B7EB; color: var(--blue-dark); }
+  .n-gray   { background: var(--gray-light);   border-color: #B4B2A9; color: var(--gray-dark); }
+
+  .tag-purple { background: #CECBF6; color: var(--purple-dark); }
+  .tag-teal   { background: #9FE1CB; color: var(--teal-dark); }
+  .tag-coral  { background: #F5C4B3; color: var(--coral-dark); }
+  .tag-amber  { background: #FAC775; color: var(--amber-dark); }
+  .tag-blue   { background: #B5D4F4; color: var(--blue-dark); }
+  .tag-gray   { background: #D3D1C7; color: var(--gray-dark); }
+
+  /* ─── ARROWS ─────────────────────── */
+  .arrow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 2px 0;
+  }
+
+  .arrow-seg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .arr-down {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    color: var(--c-hint);
+  }
+
+  .arr-line {
+    width: 1px;
+    height: 12px;
+    background: var(--c-border);
+  }
+
+  .arr-head {
+    font-size: 10px;
+    line-height: 1;
+    color: var(--c-hint);
+  }
+
+  .arr-right {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .arr-h-line {
+    flex: 1;
+    height: 1px;
+    background: var(--c-border);
+  }
+
+  /* ─── CONNECTOR BETWEEN NODES ────── */
+  .h-connector {
+    width: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .h-connector svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ─── GRID LAYOUTS ───────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+  /* ─── DECISION DIAMOND ───────────── */
+  .decision-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 4px 0;
+  }
+
+  .diamond {
+    width: 80px;
+    height: 48px;
+    background: var(--amber-light);
+    border: 0.5px solid #EF9F27;
+    transform: rotate(0deg);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--amber-dark);
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    width: 90px;
+    height: 55px;
+  }
+
+  .decision-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    position: relative;
+  }
+
+  .decision-branch {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .branch-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--c-hint);
+    padding: 2px 0;
+  }
+
+  /* ─── LOOP INDICATOR ─────────────── */
+  .loop-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 7px;
+    border-radius: 20px;
+    border: 0.5px dashed;
+    margin-top: 6px;
+  }
+
+  .loop-badge-coral { border-color: var(--coral); color: var(--coral-dark); background: var(--coral-light); }
+  .loop-badge-teal  { border-color: var(--teal);  color: var(--teal-dark);  background: var(--teal-light);  }
+  .loop-badge-purple { border-color: var(--purple); color: var(--purple-dark); background: var(--purple-light); }
+
+  /* ─── DIVIDER ─────────────────────── */
+  .divider {
+    border: none;
+    border-top: 0.5px dashed var(--c-border);
+    margin: 1.5rem 0;
+  }
+
+  /* ─── SMALL NODE GRID ────────────── */
+  .mini-node {
+    border-radius: 8px;
+    padding: 8px 10px;
+    border: 0.5px solid transparent;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .mini-sub {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    opacity: 0.78;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  /* ─── CENTERED CONNECTOR ─────────── */
+  .center-arr {
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+  }
+
+  /* ─── SUMMARY STRIP ──────────────── */
+  .summary-strip {
+    display: flex;
+    gap: 6px;
+    margin-top: 1.5rem;
+    padding: 12px 16px;
+    background: var(--c-surface);
+    border-radius: 10px;
+    border: 0.5px solid var(--c-border);
+    flex-wrap: wrap;
+  }
+
+  .strip-item {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .strip-num {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--c-text);
+  }
+
+  .strip-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--c-muted);
+    margin-top: 3px;
+  }
+
+  .strip-divider {
+    width: 0.5px;
+    background: var(--c-border);
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+</style>
+
+<div class="wrapper">
+
+  <div class="header">
+    <h1>Marketing Agency — Automated Workflow</h1>
+    <p>Lead acquisition → Onboarding → Delivery → Retention & Re-engagement</p>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Lead generation</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Onboarding</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Client delivery</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div>Nurture / re-engage</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Decision point</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gray)"></div>System / automation</div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  PHASE 1 — LEAD SOURCES                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-title">01 — Lead sources</div>
+
+  <div class="grid-4">
+    <div class="node n-purple">
+      <div class="node-label">Inbound content</div>
+      <div class="node-sub">Reels, carousels, case studies, SEO</div>
+      <div class="node-tag tag-purple">organic</div>
+    </div>
+    <div class="node n-purple">
+      <div class="node-label">Paid ads</div>
+      <div class="node-sub">Meta, Google, LinkedIn campaigns</div>
+      <div class="node-tag tag-purple">paid</div>
+    </div>
+    <div class="node n-purple">
+      <div class="node-label">Cold outreach</div>
+      <div class="node-sub">DM sequences, email prospecting</div>
+      <div class="node-tag tag-purple">outbound</div>
+    </div>
+    <div class="node n-purple">
+      <div class="node-label">Referral / events</div>
+      <div class="node-sub">Partners, podcasts, networking</div>
+      <div class="node-tag tag-purple">warm</div>
+    </div>
+  </div>
+
+  <div class="center-arr" style="margin:6px 0 2px">
+    <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+  </div>
+
+  <!-- Capture -->
+  <div class="node n-gray" style="text-align:center;">
+    <div class="node-label">Lead capture system</div>
+    <div class="node-sub">Landing page → opt-in form → CRM tag → automated "Thank you" email + calendar link</div>
+    <div class="node-tag tag-gray">automation trigger</div>
+  </div>
+
+  <div class="center-arr" style="margin:6px 0 2px">
+    <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  PHASE 2 — QUALIFICATION                  -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-title">02 — Qualification & discovery</div>
+
+  <div class="grid-2">
+    <div class="node n-amber">
+      <div class="node-label">Discovery call booked?</div>
+      <div class="node-sub">Calendly / auto-scheduler confirmation email + reminder sequence (24hr, 1hr)</div>
+      <div class="node-tag tag-amber">decision point</div>
+    </div>
+    <div class="node n-gray">
+      <div class="node-label">Pre-call intake form</div>
+      <div class="node-sub">Budget, goals, current results, timeline — auto-sent on booking confirmation</div>
+      <div class="node-tag tag-gray">automation</div>
+    </div>
+  </div>
+
+  <div style="margin:10px 0 4px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div class="branch-label" style="color:var(--coral-dark)">✕ No show / no book</div>
+      <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div class="branch-label" style="color:var(--teal-dark)">✓ Call completed</div>
+      <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="node n-coral">
+      <div class="node-label">Lost lead nurture enters</div>
+      <div class="node-sub">Tagged in CRM → drops into 30-day email sequence (see section 05)</div>
+      <div class="loop-badge loop-badge-coral">↺ re-engage loop</div>
+    </div>
+    <div class="node n-teal">
+      <div class="node-label">Proposal sent</div>
+      <div class="node-sub">Custom deck + pricing, auto-follow-up at 48hr if no reply</div>
+      <div class="node-tag tag-teal">→ awaiting decision</div>
+    </div>
+  </div>
+
+  <div style="margin:8px 0 4px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+    <div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="display:flex;gap:20px;width:100%">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div class="branch-label" style="color:var(--coral-dark)">✕ Not ready / declined</div>
+          <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div class="branch-label" style="color:var(--teal-dark)">✓ Proposal accepted</div>
+          <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+    <div></div>
+    <div class="node n-coral" style="grid-column:2">
+      <div class="node-label">Long-term nurture</div>
+      <div class="node-sub">Bi-weekly value emails, tagged "future prospect"</div>
+      <div class="loop-badge loop-badge-coral">↺ 60-day sequence</div>
+    </div>
+    <div class="node n-teal" style="grid-column:3">
+      <div class="node-label">Contract + invoice sent</div>
+      <div class="node-sub">DocuSign auto-triggered on verbal yes. Invoice via Stripe/Wave</div>
+      <div class="node-tag tag-teal">new client</div>
+    </div>
+  </div>
+
+  <div class="center-arr" style="margin:6px 0 2px">
+    <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  PHASE 3 — ONBOARDING                     -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-title">03 — Client onboarding</div>
+
+  <div class="grid-3">
+    <div class="node n-teal">
+      <div class="node-label">Welcome sequence</div>
+      <div class="node-sub">Auto-email: welcome, what to expect, team intro, Slack/portal invite</div>
+      <div class="node-tag tag-teal">day 0</div>
+    </div>
+    <div class="node n-teal">
+      <div class="node-label">Onboarding call</div>
+      <div class="node-sub">Goals, brand assets, access credentials, content calendar aligned</div>
+      <div class="node-tag tag-teal">day 1–3</div>
+    </div>
+    <div class="node n-teal">
+      <div class="node-label">Client portal live</div>
+      <div class="node-sub">Notion/ClickUp board, reporting dashboard, approval workflow set up</div>
+      <div class="node-tag tag-teal">day 3–5</div>
+    </div>
+  </div>
+
+  <div class="center-arr" style="margin:6px 0 2px">
+    <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+  </div>
+
+  <div class="node n-gray" style="text-align:center;">
+    <div class="node-label">Internal handoff to delivery team</div>
+    <div class="node-sub">Project brief auto-created → assigned in PM tool → kick-off checklist triggered → strategy doc templated</div>
+    <div class="node-tag tag-gray">internal automation</div>
+  </div>
+
+  <div class="center-arr" style="margin:6px 0 2px">
+    <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  PHASE 4 — CLIENT DELIVERY                -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-title">04 — Client delivery cycle</div>
+
+  <div class="grid-3">
+    <div class="node n-blue">
+      <div class="node-label">Strategy & planning</div>
+      <div class="node-sub">Monthly content calendar, campaign briefs, KPI targets agreed</div>
+      <div class="node-tag tag-blue">week 1</div>
+    </div>
+    <div class="node n-blue">
+      <div class="node-label">Content production</div>
+      <div class="node-sub">Copy, design, video assets created → internal QA pass</div>
+      <div class="node-tag tag-blue">week 1–2</div>
+    </div>
+    <div class="node n-blue">
+      <div class="node-label">Client approval</div>
+      <div class="node-sub">Shared via portal → 48hr feedback window → revision round if needed</div>
+      <div class="node-tag tag-blue">week 2</div>
+    </div>
+  </div>
+
+  <div class="center-arr" style="margin:6px 0 2px">
+    <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+  </div>
+
+  <div class="grid-3">
+    <div class="node n-blue">
+      <div class="node-label">Publishing & scheduling</div>
+      <div class="node-sub">Auto-scheduled via Buffer/Later — optimal posting times applied</div>
+      <div class="node-tag tag-blue">week 2–3</div>
+    </div>
+    <div class="node n-blue">
+      <div class="node-label">Community & engagement</div>
+      <div class="node-sub">Replies, DM handling, comment moderation — daily or as contracted</div>
+      <div class="node-tag tag-blue">ongoing</div>
+    </div>
+    <div class="node n-blue">
+      <div class="node-label">Monthly reporting</div>
+      <div class="node-sub">Auto-generated report → sent on day 28 → 30-min results call booked</div>
+      <div class="node-tag tag-blue">monthly</div>
+    </div>
+  </div>
+
+  <div style="margin:8px 0 4px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div class="branch-label" style="color:var(--coral-dark)">Client churns</div>
+      <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div class="branch-label" style="color:var(--teal-dark)">Client renews</div>
+      <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div class="branch-label" style="color:var(--blue-dark)">Upsell opportunity</div>
+      <div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="node n-coral">
+      <div class="node-label">Churn exit flow</div>
+      <div class="node-sub">Exit survey auto-sent → tagged "churned" → enters win-back sequence</div>
+      <div class="loop-badge loop-badge-coral">↺ win-back loop</div>
+    </div>
+    <div class="node n-teal">
+      <div class="node-label">Renewal & retention</div>
+      <div class="node-sub">Auto-renewal reminder at day 21 → contract resent → cycle repeats</div>
+      <div class="loop-badge loop-badge-teal">↺ delivery loop</div>
+    </div>
+    <div class="node n-blue">
+      <div class="node-label">Upsell proposal</div>
+      <div class="node-sub">Additional service pitched on results call → enters proposal flow</div>
+      <div class="loop-badge loop-badge-purple">↑ back to proposal</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  PHASE 5 — NURTURE SEQUENCES              -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-title">05 — Nurture & re-engagement systems</div>
+
+  <div class="grid-2">
+
+    <!-- Lost lead nurture -->
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--coral-dark);margin-bottom:6px;font-family:'DM Mono',monospace;">Lost lead — 30-day sequence</div>
+      <div class="mini-node n-coral">
+        <div>Day 1 — Value email</div>
+        <div class="mini-sub">Case study or quick win tip, no pitch</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-coral">
+        <div>Day 5 — Social proof</div>
+        <div class="mini-sub">Client result, testimonial, before/after</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-coral">
+        <div>Day 12 — Objection handler</div>
+        <div class="mini-sub">Address top 3 reasons leads don't buy</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-coral">
+        <div>Day 20 — Soft re-offer</div>
+        <div class="mini-sub">"Is now a better time?" + limited availability</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-coral">
+        <div>Day 30 — Final check-in</div>
+        <div class="mini-sub">Unsubscribe option or move to cold list</div>
+      </div>
+      <div style="margin-top:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--c-hint);">Opens any email → trigger: re-book call sequence</div>
+    </div>
+
+    <!-- Churned client win-back -->
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--purple-dark);margin-bottom:6px;font-family:'DM Mono',monospace;">Churned client — 60-day win-back</div>
+      <div class="mini-node n-purple">
+        <div>Week 1 — Exit follow-up</div>
+        <div class="mini-sub">Thank you + survey results acknowledged</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-purple">
+        <div>Week 2–3 — Insight emails</div>
+        <div class="mini-sub">Industry updates, competitor moves, free tips</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-purple">
+        <div>Week 4 — New results drop</div>
+        <div class="mini-sub">Fresh case study from similar client segment</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-purple">
+        <div>Week 6 — Comeback offer</div>
+        <div class="mini-sub">Returning client discount or improved package</div>
+      </div>
+      <div class="center-arr" style="margin:3px 0"><div class="arr-down"><div class="arr-line"></div><div class="arr-head">▼</div></div></div>
+      <div class="mini-node n-purple">
+        <div>Week 8 — Final re-pitch</div>
+        <div class="mini-sub">Direct ask to reconnect + booking link</div>
+      </div>
+      <div style="margin-top:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--c-hint);">Clicks link → back to qualification flow (section 02)</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  SUMMARY STRIP                             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="summary-strip">
+    <div class="strip-item">
+      <div class="strip-num" style="color:var(--purple)">4</div>
+      <div class="strip-label">lead sources</div>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <div class="strip-num" style="color:var(--teal)">5</div>
+      <div class="strip-label">onboarding steps</div>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <div class="strip-num" style="color:var(--blue)">6</div>
+      <div class="strip-label">delivery milestones</div>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <div class="strip-num" style="color:var(--coral)">5</div>
+      <div class="strip-label">lost lead touchpoints</div>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <div class="strip-num" style="color:var(--purple)">5</div>
+      <div class="strip-label">win-back touchpoints</div>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <div class="strip-num" style="color:var(--amber)">3</div>
+      <div class="strip-label">decision gates</div>
+    </div>
+  </div>
+
+</div>
